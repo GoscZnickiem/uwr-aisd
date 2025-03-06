@@ -10,11 +10,12 @@ int DST(uint32_t entry, uint32_t depth) {
 		printf("%u\n", depth);
 		return 1;
 	}
+	if(!dest[entry]) return 0;
 
 	uint32_t i = dest[entry];
 	do {
-		if(DST(i, depth + 1)) {
-			printf("%lu %lu %u\n", graph[i] & 0x3FFFF, (graph[i] >> 14) & 0x3FFFF, entry);
+		if(DST(graph[i] & 0x3FFF, depth + 1)) {
+			printf("%lu %lu %u\n", graph[i] & 0x3FFF, (graph[i] >> 14) & 0x3FFF, entry);
 			return 1;
 		}
 		i = graph[i] >> 46;
@@ -33,15 +34,15 @@ int main(void) {
 	for (size_t i = 1; i <= n; i++) {
 		uint64_t l, m, r;
 		scanf("%lu %lu %lu", &l, &m, &r);
-		dest[r] = dest[r] ? dest[r] : i;
 		uint64_t prev = dest[r] ? (graph[dest[r]] >> 28) & 0x3FFFF : i;
+		dest[r] = dest[r] ? dest[r] : i;
 		uint64_t next = dest[r];
 		graph[prev] = (graph[prev] & 0x00003FFFFFFFFFFF) | (i << 46);
 		graph[next] = (graph[next] & 0xFFFFC0000FFFFFFF) | (i << 28);
-		graph[i] = l | (m << 14) | (prev << 28) | (next << 36);
+		graph[i] = l | (m << 14) | (prev << 28) | (next << 46);
 	}
 
-	if(DST(0, 0)) printf("BRAK\n");
+	if(!DST(0, 0)) printf("BRAK\n");
 
 	return 0;
 }
