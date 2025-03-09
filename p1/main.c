@@ -8,9 +8,6 @@
 #include <time.h>
 #endif
 
-static uint64_t* graph;
-static uint32_t outEdges[10001] = {0};
-
 static char* buffer;
 static size_t pos = 0;
 
@@ -24,6 +21,15 @@ uint64_t readInt() {
 	return num;
 }
 
+typedef struct {
+	uint32_t next;
+	uint16_t l;
+	uint16_t m;
+} Edge;
+
+static Edge* graph;
+static uint32_t outEdges[10001] = {0};
+
 int DFS(uint32_t vert, uint32_t depth) {
 	if(!vert && depth) {
 		printf("%u\n", depth);
@@ -33,11 +39,11 @@ int DFS(uint32_t vert, uint32_t depth) {
 	uint32_t i = outEdges[vert];
 	outEdges[vert] = 0;
 	while (i != 0) {
-		if(DFS(graph[i] & 0xFFFF, depth + 1)) {
-			printf("%lu %lu %u\n", graph[i] & 0xFFFF, (graph[i] >> 16) & 0xFFFF, vert);
+		if(DFS(graph[i].l, depth + 1)) {
+			printf("%hu %hu %u\n", graph[i].l, graph[i].m, vert);
 			return 1;
 		}
-		i = graph[i] >> 32;
+		i = graph[i].next;
 	}
 
 	return 0;
@@ -60,15 +66,16 @@ int main(void) {
 
 	size_t n = readInt();
 
-	uint64_t graphi[n+1];
+	Edge graphi[n+1];
 	graph = graphi;
 
 	for (size_t i = 1; i <= n; i++) {
 		uint64_t l = readInt();
 		uint64_t m = readInt();
 		uint64_t r = readInt();
-		uint64_t next = outEdges[r];
-		graph[i] = l | (m << 16) | (next << 32);
+		graph[i].next = outEdges[r];
+		graph[i].l = l;
+		graph[i].m = m;
 		outEdges[r] = i;
 	}
 
