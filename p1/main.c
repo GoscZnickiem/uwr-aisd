@@ -1,6 +1,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#ifndef SPRAWDZACZKA
+#include <time.h>
+#endif
 
 uint64_t* graph;
 uint32_t dest[10001] = {0};
@@ -12,19 +15,27 @@ int DST(uint32_t entry, uint32_t depth) {
 	}
 	if(!dest[entry]) return 0;
 
-	uint32_t i = dest[entry];
+	uint32_t d = dest[entry];
+	dest[entry] = 0;
+	uint32_t i = d;
 	do {
 		if(DST(graph[i] & 0x3FFF, depth + 1)) {
 			printf("%lu %lu %u\n", graph[i] & 0x3FFF, (graph[i] >> 14) & 0x3FFF, entry);
 			return 1;
 		}
 		i = graph[i] >> 46;
-	} while (i != dest[entry]);
+	} while (i != d);
 
 	return 0;
 }
 
 int main(void) {
+#ifndef SPRAWDZACZKA
+	clock_t start, end;
+	double cpu_time_used;
+	start = clock();
+#endif
+
 	size_t n = 0;
 	scanf("%zu", &n);
 
@@ -43,6 +54,12 @@ int main(void) {
 	}
 
 	if(!DST(0, 0)) printf("BRAK\n");
+
+#ifndef SPRAWDZACZKA
+	end = clock();
+	cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("Time taken: %f seconds\n", cpu_time_used);
+#endif
 
 	return 0;
 }
