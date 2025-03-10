@@ -1,0 +1,106 @@
+zad. 1
+
+Kopiec jako tablica T (indeksowana od 1):
+
+Mm AaBb CcDdEeFf ...
+
+    M 
+  A   B 
+ C D E F
+
+ c d e f
+  a   b 
+    m
+
+Korzeń drzewa H (M) leży w T[0], a korzeń drzewa L (m) leży w T[1].
+
+Synowie wierchołka T[n] znajdują się w:
+	T[2n+1] i T[2n+3] jeśli T[n] jest w H
+	T[2n]  i  T[2n+2] jeśli T[n] jest w L
+Ojciec wierzchołka T[n] znajduje się w:
+	T[n//4 * 2]			jeśli T[n] jest w H
+	T[(n+1)//4 * 2 - 1] jeśli T[n] jest w L
+Poprzednik T[n] w ścieżce:
+	T[n+1] (lub rodzic) jeśli T[n] jest w H
+	T[n-1]				jeśli T[n] jest w L
+
+Implementacja:
+
+// pamiętamy tablicę T[] i wielkość danych n.
+
+prevIndex(i):
+	if i % 2:
+		return i - 1
+	else if i < n:
+		return i + 1 
+	else:
+		return (i+2)//4 * 2 - 1
+
+// to wszystko jest izomorficzne z dokładnością do wyrażenia biorącego rodzica/dzieci
+moveUpH(i):
+	k = i 
+	repeat
+		j = k 
+		if j > 1 and T[j//4*2] < T[k] then k = j//4*2
+		T[j] <-> T[k]
+	until j = k
+
+moveDownH(i):
+	k = i 
+	repeat 
+		j = k 
+		if 2j+1 <= n and T[2j+1] > T[k] then k = 2j+1
+		if 2j+3 <= n and T[2j+3] > T[k] then k = 2j+3
+		T[j] <-> T[k]
+	until j = k
+
+insert(x):
+	n += 1
+	T[n] = x
+	if n % 2: // wkładamy do L
+		y = prevIndex(n)
+		if x < T[y]:
+			T[n] <-> T[y]
+			moveUpH(y)
+		else:
+			moveUpL(n)
+	else: // wkładamy do H
+		y = prevIndex(n)
+		if x < T[y]:
+			T[n] <-> T[y]
+			moveUpL(y)
+		else:
+			moveUpH(n)
+
+deleteMin():
+	if n % 2:
+		T[1] = T[n]
+		n -= 1 
+		moveDownL(1)
+	else:
+		T[0] = T[n]
+		n -= 1 
+		moveDownH(0)
+
+deleteMax():
+	if n % 2:
+		T[0] = T[n]
+		n -= 1 
+		moveDownH(0)
+	else:
+		T[1] = T[n]
+		n -= 1 
+		moveDownL(1)
+
+
+
+
+
+
+zad. 2
+
+algorytm(L1...Lk):
+	|min(L[0]...) - max(L[-1]...)|
+
+
+
