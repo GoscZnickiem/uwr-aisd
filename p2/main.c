@@ -11,7 +11,8 @@ typedef struct {
 
 static uint32_t M, K;
 static uint32_t n;
-static Elem* heap;
+#define MAGIC_SIZE 2911
+static Elem heap[MAGIC_SIZE];
 
 #define VAL(i) ((uint64_t)heap[i].list * (uint64_t)(heap[i].list - heap[i].index))
 #define SWAP(i, j) { Elem tmp = heap[i]; heap[i] = heap[j]; heap[j] = tmp; }
@@ -51,7 +52,7 @@ void popAndPushNext() {
 		printf("%zu\n", v);
 		last = v;
 		K--;
-	}
+	} 
 	uint32_t index = ++heap[1].index;
 	moveDown(1);
 	if(index >= n) push(M - n);
@@ -65,14 +66,11 @@ int main(void) {
 #endif
 	scanf("%u %u", &M, &K);
 
-	Elem heapi[(M < K ? M : K) + 1];
-	heap = heapi;
-
 	heap[1].list = M; 
 	heap[1].index = 0; 
 	n = 1;
 
-	setvbuf(stdout, NULL, _IOFBF, 1<<20);
+	setvbuf(stdout, NULL, _IOFBF, 1);
 	while(K > 0) popAndPushNext();
 
 #ifndef SPRAWDZACZKA
