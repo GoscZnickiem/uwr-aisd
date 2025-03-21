@@ -1,18 +1,16 @@
 #include <stdint.h>
 #include <stdio.h>
-#ifndef SPRAWDZACZKA
-#include <time.h>
-#endif
 
 typedef struct {
 	uint32_t list;
 	uint32_t index;
 } Elem;
 
-static uint32_t M, K;
-static uint32_t n;
+uint32_t M, K;
+uint32_t n = 1;
 #define MAGIC_SIZE 2911
-static Elem heap[MAGIC_SIZE];
+Elem heap[MAGIC_SIZE];
+uint64_t lastPrinted = 0;
 
 #define VAL(i) ((uint64_t)heap[i].list * (uint64_t)(heap[i].list - heap[i].index))
 #define SWAP(i, j) { Elem tmp = heap[i]; heap[i] = heap[j]; heap[j] = tmp; }
@@ -41,16 +39,14 @@ void moveUp(uint32_t i) {
 void push(uint32_t list) {
 	n++;
 	heap[n].list = list;
-	heap[n].index = 0;
 	moveUp(n);
 }
 
-void popAndPushNext() {
-	static uint64_t last = 0;
+inline void popAndPushNext() {
 	uint64_t v = VAL(1);
-	if(v != last) {
+	if(v != lastPrinted) {
 		printf("%zu\n", v);
-		last = v;
+		lastPrinted = v;
 		K--;
 	} 
 	uint32_t index = ++heap[1].index;
@@ -59,25 +55,12 @@ void popAndPushNext() {
 }
 
 int main(void) {
-#ifndef SPRAWDZACZKA
-	clock_t start, end;
-	double cpu_time_used;
-	start = clock();
-#endif
 	scanf("%u %u", &M, &K);
 
 	heap[1].list = M; 
-	heap[1].index = 0; 
-	n = 1;
 
-	setvbuf(stdout, NULL, _IOFBF, 1);
+	setvbuf(stdout, NULL, _IOFBF, 64);
 	while(K > 0) popAndPushNext();
-
-#ifndef SPRAWDZACZKA
-	end = clock();
-	cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-	printf("Time taken: %f seconds\n", cpu_time_used);
-#endif
 
 	return 0;
 }
