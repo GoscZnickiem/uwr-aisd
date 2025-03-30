@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-uint8_t validityTable[1 << 15];
+uint32_t validityTable[1 << 15];
 uint32_t buff1[1 << 10];
 uint32_t buff2[1 << 10];
 uint32_t* patternCount = buff1;
@@ -25,33 +25,30 @@ void readInvalidPattern() {
 	uint32_t mid = u | (m << 1) | (l << 2);
 	uint32_t right = ur | (mr << 1) | (lr << 2);
 
-	uint32_t index;
+	uint32_t index = right | (mid << 5) | (left << 10);
 
-	index = left | (mid << 5) | (right << 10);
 	for(unsigned c = 0; c < 4; ++c)
 		for(unsigned b = 0; b < 4; ++b)
 			for(unsigned a = 0; a < 4; ++a)
 				validityTable[index + (a << 3) + (b << 8) + (c << 13)] = 0;
 
-	index = (left << 1) | (mid << 6) | (right << 11);
 	for(unsigned d = 0; d < 2; ++d)
 		for(unsigned c = 0; c < 4; ++c)
 			for(unsigned b = 0; b < 4; ++b)
 				for(unsigned a = 0; a < 2; ++a)
-					validityTable[index + a + (b << 4) + (c << 9) + (d << 14)] = 0;
+					validityTable[(index << 1) + a + (b << 4) + (c << 9) + (d << 14)] = 0;
 
-	index = (left << 2) | (mid << 7) | (right << 12);
 	for(unsigned c = 0; c < 4; ++c)
 		for(unsigned b = 0; b < 4; ++b)
 			for(unsigned a = 0; a < 4; ++a)
-				validityTable[index + a + (b << 5) + (c << 10)] = 0;
+				validityTable[(index << 2) + a + (b << 5) + (c << 10)] = 0;
 }
 
 int main() {
 	for(unsigned i = 0; i < 1 << 10; ++i)
 		patternCount[i] = 1;
 	for(unsigned i = 0; i < 1 << 15; ++i)
-		validityTable[i] = 1;
+		validityTable[i] = UINT32_MAX;
 
 	uint32_t n, p, m;
 	scanf("%u %u %u", &n, &p, &m);
@@ -64,7 +61,7 @@ int main() {
 		for(unsigned i = 0; i < 1 << 10; ++i) {
 			patternCountBuffer[i] = 0;
 			for(unsigned j = 0; j < 1 << 5; ++j) {
-				patternCountBuffer[i] += validityTable[i + (j << 10)] ? patternCount[(i >> 5) + (j << 5)] : 0;
+				patternCountBuffer[i] += validityTable[(i << 5) + j] & patternCount[(i << 5 & 0x3E0) + j];
 			}
 			patternCountBuffer[i] %= m;
 		}
